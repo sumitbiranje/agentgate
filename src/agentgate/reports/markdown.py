@@ -2,21 +2,27 @@
 
 from __future__ import annotations
 
+import re
+
 from agentgate.models import CaseComparison, Report
 from agentgate.reports import fmt
 
+_TAG_START = re.compile(r"<(?=[A-Za-z/!?])")
+
 
 def esc(text: str) -> str:
-    """Make arbitrary text safe inside a Markdown table cell."""
-    return (
+    """Make arbitrary text safe inside a Markdown table cell.
+
+    Only a ``<`` that could open an HTML tag is escaped, so "<= 5" stays readable.
+    """
+    text = (
         text.replace("\\", "\\\\")
         .replace("|", "\\|")
         .replace("`", "\\`")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
         .replace("\r", " ")
         .replace("\n", " ")
     )
+    return _TAG_START.sub("&lt;", text)
 
 
 def _case_row(c: CaseComparison, compare: bool) -> str:

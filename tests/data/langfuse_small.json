@@ -1,0 +1,13 @@
+[{"id": "lf-1", "name": "refund", "input": "refund 7", "output": {"content": "Done."},
+  "latency": 2.5, "metadata": {"case_id": "refund", "attempt": 1},
+  "observations": [
+    {"type": "TOOL", "name": "lookup", "input": {"id": "7"}, "output": {"ok": true},
+     "startTime": "2026-11-01T10:00:01Z", "endTime": "2026-11-01T10:00:01.200Z"},
+    {"type": "GENERATION", "name": "chat", "model": "m", "usageDetails": {"input": 100, "output": 10},
+     "calculatedTotalCost": 0.001, "startTime": "2026-11-01T10:00:00Z", "endTime": "2026-11-01T10:00:00.800Z"},
+    {"type": "SPAN", "name": "issue_refund", "metadata": {"tool": true}, "input": "raw", "level": "ERROR",
+     "statusMessage": "declined", "startTime": "2026-11-01T10:00:02Z"},
+    {"type": "SPAN", "name": "internal"},
+    {"type": "GENERATION", "name": "chat2", "model": "m", "usage": {"promptTokens": 5, "completionTokens": 1},
+     "calculatedTotalCost": 0.0005, "startTime": "2026-11-01T10:00:03Z", "endTime": "bad"}
+  ]}]
