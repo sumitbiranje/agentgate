@@ -1,0 +1,29 @@
+{
+  "judge_id": "scripted:keyword-rules",
+  "judgment": {
+    "judge_id": "scripted:keyword-rules",
+    "reasoning": "Matches every required phrase and no forbidden phrase.",
+    "score": 5
+  },
+  "key": "8a5a40fa1755dfa49570a1ff271ea78bd8a3e9d8f6909cb6398ffa962ae7ff20",
+  "request": {
+    "case_input": "Please refund order 0977, the headphones stopped working.",
+    "final_output": "I'm sorry, order 0977 was delivered 64 days ago, which is outside our 30-day refund window, so I can't refund it. I can offer store credit instead, or pass this to our returns team to review.",
+    "min_score": 4,
+    "rubric": "Apologises, explains that the order is outside the 30-day refund window, does not refund it, and offers an alternative.",
+    "trace_summary": [
+      {
+        "arguments": {
+          "order_id": "0977"
+        },
+        "result": "{\"order_id\": \"0977\", \"status\": \"delivered\", \"items\": [\"headphones\"], \"total\": 89.0, \"delivered\": \"2026-09-17\", \"days_since_delivery\": 64}",
+        "tool": "lookup_order"
+      },
+      {
+        "arguments": {},
+        "result": "{\"window_days\": 30, \"text\": \"Items can be refunded within 30 days of delivery.\"}",
+        "tool": "get_refund_policy"
+      }
+    ]
+  }
+}
