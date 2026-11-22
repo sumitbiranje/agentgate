@@ -1,0 +1,70 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --locked
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Type-check (strict)
+        run: uv run mypy
+      - name: Tests (no API key)
+        env:
+          ANTHROPIC_API_KEY: ""
+        run: uv run pytest --cov --cov-report=term --cov-fail-under=85
+      - name: Demo fixtures are reproducible
+        run: |
+          uv run python examples/support_agent/simulate.py
+          git diff --exit-code examples/support_agent/runs
+
+  demo-gate:
+    # Dogfoods the composite action on the demo: the good change must pass, the bad
+    # change must fail the gate.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Good change passes
+        uses: ./
+        with:
+          config: examples/support_agent/agentgate.yaml
+          baseline: examples/support_agent/runs/baseline
+          candidate: examples/support_agent/runs/candidate-good
+          report-dir: reports/good
+
+      - name: Bad change is caught
+        id: bad
+        uses: ./
+        with:
+          config: examples/support_agent/agentgate.yaml
+          baseline: examples/support_agent/runs/baseline
+          candidate: examples/support_agent/runs/candidate-bad
+          report-dir: reports/bad
+          fail-on-gate: "false"
+
+      - name: Assert the bad change failed the gate
+        env:
+          CODE: ${{ steps.bad.outputs.exit-code }}
+        run: |
+          echo "bad change exit code: $CODE"
+          test "$CODE" = "1"
+          grep -q "refund-out-of-window" reports/bad/report.md
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agentgate-demo-reports
+          path: reports/

@@ -22,8 +22,10 @@ judge:
     "Apologises for the damage and tells the customer that a human team will follow up.":
       all_of: ["sorry", "team"]
 
-pricing:        # USD per million tokens (fictional model)
-  sim-model: {input: 3.0, output: 15.0}
+pricing:        # USD per million tokens
+  sim-model: {input: 3.0, output: 15.0}          # the offline stand-in (fictional)
+  claude-opus-5-5: {input: 4.0, output: 20.0}    # used by record_live.py
+  claude-sonnet-5-5: {input: 2.0, output: 10.0}
 
 redact:
   patterns: ['\bcard[- ]?\d{4}\b']
