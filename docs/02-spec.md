@@ -190,11 +190,13 @@ check informational: it is reported but never fails the run.
 - **Prompt**: fixed, versioned (`JUDGE_PROMPT_VERSION`), rubric-first, asks for a 1–5
   score and short reasoning. The trace is wrapped in tags and the model is told to
   treat it as data, not instructions (prompt-injection hygiene).
-- **Structured output**: the Anthropic provider forces a single tool call
-  (`record_judgment`) whose input schema is the `Judgment` shape; the result is
-  validated with Pydantic. One retry on malformed output, then a `JudgeError`.
+- **Structured output**: the Anthropic provider uses the Messages API structured-output
+  mode (`output_config.format` with a JSON schema for `{score, reasoning}`) and
+  validates the result with Pydantic. Forced `tool_choice` is not used (current models
+  reject it). One retry on malformed output, then a `JudgeError`. A `refusal` stop
+  reason is a `JudgeError` too.
 - **Providers**: `anthropic` (default model `claude-sonnet-5-5`, key from
-  `ANTHROPIC_API_KEY`, temperature 0), `replay` (reads cache only; a miss is an
+  `ANTHROPIC_API_KEY`; no sampling parameters, since reproducibility comes from the cache, not from temperature), `replay` (reads cache only; a miss is an
   error — used in CI), `scripted` (deterministic keyword rules from config; for
   tests and offline demos, clearly labelled as not a model).
 - **Cache**: key = SHA-256 of canonical JSON of {prompt version, judge id (provider +

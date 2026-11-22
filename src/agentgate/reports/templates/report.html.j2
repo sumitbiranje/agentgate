@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>agentgate · {{ r.suite }} · {{ "PASS" if r.passed else "FAIL" }}</title>
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --line: #e3e2dd;
+  --pass: #1f7a4d; --pass-bg: #e5f3eb; --fail: #b3261e; --fail-bg: #fbe9e7;
+  --warn: #8a5a00; --warn-bg: #fdf1d8; --info: #2b5fab; --info-bg: #e6eefa;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161615; --panel: #1f1f1d; --text: #ecebe6; --muted: #a09f98; --line: #33332f;
+    --pass: #6fcf97; --pass-bg: #18301f; --fail: #f28b82; --fail-bg: #3a1d1b;
+    --warn: #f2c46d; --warn-bg: #33290f; --info: #8ab4f8; --info-bg: #1a2638;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-bottom: 8px; }
+h1 { font-size: 22px; margin: 0; font-weight: 650; }
+h2 { font-size: 16px; margin: 32px 0 10px; font-weight: 650; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-weight: 700;
+  font-size: 13px; letter-spacing: .04em; }
+.badge.pass { background: var(--pass-bg); color: var(--pass); }
+.badge.fail { background: var(--fail-bg); color: var(--fail); }
+.sub { color: var(--muted); margin: 0 0 20px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.card .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+.card .v { font-size: 22px; font-weight: 650; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.card .d { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.card .d.bad { color: var(--fail); } .card .d.good { color: var(--pass); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; }
+code { font-family: var(--mono); font-size: 13px; }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 650; white-space: nowrap; }
+.t-regressed, .t-failing, .t-removed { background: var(--fail-bg); color: var(--fail); }
+.t-flaky { background: var(--warn-bg); color: var(--warn); }
+.t-improved, .t-passing { background: var(--pass-bg); color: var(--pass); }
+.t-new { background: var(--info-bg); color: var(--info); }
+.t-unchanged { color: var(--muted); border: 1px solid var(--line); }
+.crit { color: var(--fail); font-size: 11px; font-weight: 700; margin-left: 6px; letter-spacing: .04em; }
+.ok { color: var(--pass); font-weight: 700; } .no { color: var(--fail); font-weight: 700; }
+.muted { color: var(--muted); }
+details summary { cursor: pointer; color: var(--muted); }
+details ul { margin: 6px 0 0; padding-left: 18px; }
+footer { margin-top: 32px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>agentgate · {{ r.suite }}</h1>
+  <span class="badge {{ 'pass' if r.passed else 'fail' }}">{{ "PASS" if r.passed else "FAIL" }}</span>
+</header>
+<p class="sub">{{ headline }} {% if r.mode == "compare" %}Baseline vs candidate over {{ r.baseline.runs }} / {{ r.candidate.runs }} runs.{% else %}{{ r.candidate.runs }} runs scored.{% endif %}</p>
+
+<section class="cards">
+{% for c in cards %}
+  <div class="card"><div class="k">{{ c.k }}</div><div class="v">{{ c.v }}</div>
+  {% if c.d %}<div class="d {{ c.cls }}">{{ c.d }}</div>{% endif %}</div>
+{% endfor %}
+</section>
+
+{% if r.gates %}
+<h2>Gates</h2>
+<div class="panel"><table>
+<thead><tr><th></th><th>Rule</th><th>Threshold</th><th>Actual</th><th>Detail</th></tr></thead>
+<tbody>
+{% for g in r.gates %}
+<tr><td>{% if g.passed %}<span class="ok">✓</span>{% else %}<span class="no">✗</span>{% endif %}</td>
+<td><code>{{ g.rule }}</code></td><td>{{ g.threshold }}</td><td>{{ g.actual }}</td><td>{{ g.message }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endif %}
+
+<h2>Cases</h2>
+<div class="panel"><table>
+<thead><tr><th>Label</th><th>Case</th>{% if r.mode == "compare" %}<th class="num">Baseline</th>{% endif %}<th class="num">Candidate</th><th>Detail</th></tr></thead>
+<tbody>
+{% for c in r.cases %}
+<tr>
+<td><span class="tag t-{{ c.label }}">{{ labels[c.label] }}</span></td>
+<td><code>{{ c.case_id }}</code>{% if c.critical %}<span class="crit">CRITICAL</span>{% endif %}
+{% if c.description %}<div class="muted">{{ c.description }}</div>{% endif %}</td>
+{% if r.mode == "compare" %}<td class="num">{{ fmt.runs(c.baseline) }}</td>{% endif %}
+<td class="num">{{ fmt.runs(c.candidate) }}</td>
+<td>{{ c.reason }}
+{% if c.candidate and c.candidate.check_failures %}
+<details><summary>failing checks</summary><ul>
+{% for cid, n in c.candidate.check_failures.items() %}<li><code>{{ cid }}</code> × {{ n }}</li>{% endfor %}
+</ul>{% if c.candidate.sample_failure %}<div class="muted">e.g. {{ c.candidate.sample_failure }}</div>{% endif %}</details>
+{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody></table></div>
+
+{% if r.warnings %}
+<h2>Warnings</h2>
+<div class="panel"><table><tbody>
+{% for w in r.warnings %}<tr><td>{{ w }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+
+<footer>agentgate {{ r.tool_version }} · generated {{ r.generated_at }} · k={{ r.k }} · alpha={{ r.alpha }} · seed={{ r.seed }}{% if r.judge %} · judge: {{ r.judge }}{% endif %}</footer>
+</main>
+</body>
+</html>
