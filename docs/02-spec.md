@@ -10,7 +10,7 @@ Status: approved for v0.1 · Stage 2 of 6
   GenAI spans (OTLP/JSON file export), and Langfuse trace export JSON (best effort).
 - A suite file (`agentgate.yaml`) declaring cases, checks, judge settings, pricing,
   redaction and gate rules.
-- Deterministic checks (11 built-in types), custom Python checks, an LLM-judge check.
+- Deterministic checks (12 built-in types), custom Python checks, an LLM-judge check.
 - `check` command: score one set of traces; absolute gates only.
 - `compare` command: score baseline and candidate, compute statistics, label each
   case, apply gates, write reports, exit with a gate-derived code.

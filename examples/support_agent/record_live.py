@@ -118,7 +118,7 @@ def main(argv: list[str] | None = None, client: Any = None) -> None:
     )
     parser.add_argument("--out", type=Path, default=HERE / "runs" / "live")
     parser.add_argument("--attempts", type=int, default=3)
-    parser.add_argument("--model", default="claude-opus-5-5")
+    parser.add_argument("--model", default="claude-sonnet-5-5")
     parser.add_argument("--cases", nargs="*", help="Only these case ids.")
     args = parser.parse_args(argv)
 

@@ -25,7 +25,7 @@ def _load() -> Any:
 
 def msg(stop: str, *blocks: Any) -> Any:
     return SimpleNamespace(
-        model="claude-opus-5-5",
+        model="claude-sonnet-5-5",
         stop_reason=stop,
         content=list(blocks),
         usage=SimpleNamespace(input_tokens=100, output_tokens=20),
