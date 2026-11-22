@@ -90,6 +90,12 @@ def label_pair(
     if p <= alpha:
         direction: Label = "regressed" if cand.pass_rate < base.pass_rate else "improved"
         return direction, f"{rates} (Fisher p={p:.3f} <= {alpha})", p
+    if base.pass_rate == 1.0:
+        return (
+            "flaky",
+            f"{rates}: new failing run(s), not significant at this run count (p={p:.3f})",
+            p,
+        )
     return "flaky", f"{rates}: mixed outcomes, difference not significant (p={p:.3f})", p
 
 

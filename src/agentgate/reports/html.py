@@ -37,12 +37,12 @@ def _cards(r: Report) -> list[Card]:
         ]
     ci = ""
     if d.pass_rate_ci is not None:
-        ci = f" · CI {d.pass_rate_ci.low * 100:+.0f}…{d.pass_rate_ci.high * 100:+.0f}"
+        ci = f" (95% CI {d.pass_rate_ci.low * 100:+.0f} to {d.pass_rate_ci.high * 100:+.0f})"
     return [
         Card(
             "Pass rate",
             fmt.rate(c.pass_rate),
-            f"{fmt.pts(d.pass_rate)} vs {fmt.rate(b.pass_rate)}{ci}",
+            f"{fmt.pts(d.pass_rate)}{ci}, was {fmt.rate(b.pass_rate)}",
             _cls(d.pass_rate, False),
         ),
         Card(
